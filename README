@@ -1,0 +1,125 @@
+NAME
+    DOCSIS::ConfigFile - Decodes and encodes DOCSIS config-files for
+    cable-modems
+
+VERSION
+    Version 0.1
+
+SYNOPSIS
+        use DOCSIS::ConfigFile;
+
+        my $obj = DOCSIS::ConfigFile->new(
+                      filehandle    => '', # used by decode
+                      read_file     => '', # used by decode
+                      write_file    => '', # used by encode
+                      shared_secret => '', # used by encode
+                      binstring     => '', # holds the data
+                  )
+ 
+        $config_data = $obj->encode;
+        $config_data = $obj->decode;
+
+METHODS
+  new
+    Object constructor
+
+  decode
+    Decodes the config-file.
+
+  encode
+    Encodes the config-file settings.
+
+  find_syminfo
+    Returns a array ref with information about the docsis symbol. The symbol
+    can be either ID or a combination of CODE and PCODE.
+
+  calculate_eod_and_pad
+    Returns the EOD and padding for the config-file. Called automatically
+    from inside encode().
+
+  calculate_cm_mic
+    Returns the CM MIC. Called automatically from inside encode().
+
+  calculate_cmts_mic
+    Returns the CMTS MIC. Called automatically from inside encode().
+
+FUNCTIONS
+  ID
+    find_syminfo("foo")->[&ID] returns the identifier for the symbol "foo"
+
+  CODE
+    find_syminfo("foo")->[&CODE] returns the docsis code for the symbol
+    "foo"
+
+  PCODE
+    find_syminfo("foo")->[&PCODE] returns the parent docsis code for the
+    symbol
+
+  FUNC
+    find_syminfo("foo")->[&PCODE] returns the function name to use to
+    enc/decode the docsis symbol.
+
+  L_LIMIT
+    find_syminfo("foo")->[&PCODE] returns the lower limit for this value.
+
+  U_LIMIT
+    find_syminfo("foo")->[&PCODE] returns the upper limit for this value.
+
+AUTHOR
+    Jan Henning Thorsen, "<pm at flodhest.net>"
+
+BUGS
+    Please report any bugs or feature requests to "bug-docsis-perl at
+    rt.cpan.org", or through the web interface at
+    <http://rt.cpan.org/NoAuth/ReportBug.html?Queue=DOCSIS-ConfigFile>. I
+    will be notified, and then you'll automatically be notified of progress
+    on your bug as I make changes.
+
+SUPPORT
+    You can find documentation for this module with the perldoc command.
+
+        perldoc DOCSIS::ConfigFile
+
+    You can also look for information at:
+
+    * AnnoCPAN: Annotated CPAN documentation
+        <http://annocpan.org/dist/DOCSIS-ConfigFile>
+
+    * CPAN Ratings
+        <http://cpanratings.perl.org/d/DOCSIS-ConfigFile>
+
+    * RT: CPAN's request tracker
+        <http://rt.cpan.org/NoAuth/Bugs.html?Dist=DOCSIS-ConfigFile>
+
+    * Search CPAN
+        <http://search.cpan.org/dist/DOCSIS-ConfigFile>
+
+ACKNOWLEDGEMENTS
+COPYRIGHT & LICENSE
+    ------------------------------------------------------------------------
+    ------ THIS PROGRAM IS BASED ON THE C-PROGRAM "docsis" FROM
+    docsis.sf.net!
+    ------------------------------------------------------------------------
+    ------
+
+    This program is free software; you can redistribute it and/or modify it
+    under the same terms as Perl itself.
+
+    Copyright (c) 2007 Jan Henning Thorsen
+
+    This program is free software; you can redistribute it and/or modify it
+    under the terms of the GNU General Public License as published by the
+    Free Software Foundation; either version 2 of the License, or (at your
+    option) any later version.
+
+    This program is distributed in the hope that it will be useful, but
+    WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
+    Public License for more details.
+
+    You should have received a copy of the GNU General Public License along
+    with this program; if not, write to the Free Software Foundation, Inc.,
+    675 Mass Ave, Cambridge, MA 02139, USA.
+
+    DOCSIS is a registered trademark of Cablelabs, http://www.cablelabs.com
+
