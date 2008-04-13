@@ -1,0 +1,43 @@
+8
+
+dir
+63
+file:///home/subversion/perlmodules/DOCSIS-ConfigFile/lib/DOCSIS
+file:///home/subversion/perlmodules
+
+
+
+2008-04-13T19:37:18.970931Z
+63
+jhthorsen
+
+
+svn:special svn:externals svn:needs-lock
+
+
+
+
+
+
+
+
+
+
+
+a6e20c24-3768-440d-89cf-b1ad964a6c21
+
+ConfigFile.pm
+file
+
+
+
+
+2008-04-13T19:38:07.000000Z
+856cdd49807e8d35e6106538a911e418
+2008-04-13T19:37:18.970931Z
+63
+jhthorsen
+
+ConfigFile
+dir
+
