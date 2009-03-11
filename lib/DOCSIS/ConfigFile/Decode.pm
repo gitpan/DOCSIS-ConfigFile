@@ -1,7 +1,14 @@
-
-#==================================
 package DOCSIS::ConfigFile::Decode;
-#==================================
+
+=head1 NAME
+
+DOCSIS::ConfigFile::Decode - Decode functions for a DOCSIS config-file
+
+=head1 VERSION
+
+See DOCSIS::ConfigFile
+
+=cut
 
 use strict;
 use warnings;
@@ -23,88 +30,124 @@ our %SNMP_TYPE = (
     0x46 => [ 'COUNTER64',  \&bigint ],
 );
 
+=head1 FUNCTIONS
 
-sub snmp_type { #=============================================================
-    return $SNMP_TYPE{lc shift} || $SNMP_TYPE{4};
-}
+=head2 snmp_oid(@bytes)
 
-sub snmp_oid { #==============================================================
+Returns a numeric OID.
 
-    my @input_oid   = @_;
-    my @decoded_oid = (0);
-    my $subid       = 0;
+=cut
 
-    ### fix oid
-    for my $id (@input_oid) {
+sub snmp_oid {
+    my @bytes  = @_;
+    my @oid    = (0);
+    my $subid  = 0;
 
-        ### sub-identifier too large
-        return if($subid & 0xfe000000);
+    for my $id (@bytes) {
+        if($subid & 0xfe000000) {
+            $@ = q(Sub-identifier too large);
+            return;
+        }
 
         $subid = ($subid << 7) | ($id & 0x7f);
 
         unless($id & 0x80) {
+            if(128 <= @oid) {
+                $@ = q(Exceeded max length);
+                return;
+            }
 
-            ### exceeded max length
-            return if(@decoded_oid == 127);
-
-            ### oid is ok
-            push @decoded_oid, $subid;
+            push @oid, $subid;
             $subid = 0;
         }
     }
 
-    ### the first two sub-id are in the first id
-    if($decoded_oid[1] == 0x2b) {   # Handle the most common case
-        $decoded_oid[0] = 1;        # first [iso(1).org(3)]
-        $decoded_oid[1] = 3;
+    # the first two sub-id are in the first id
+    if($oid[1] == 0x2b) {   # Handle the most common case
+        $oid[0] = 1;
+        $oid[1] = 3;
     }
-    elsif($decoded_oid[1] < 40) {
-        $decoded_oid[0] = 0;
+    elsif($oid[1] < 40) {
+        $oid[0] = 0;
     }
-    elsif($decoded_oid[1] < 80) {
-        $decoded_oid[0]  = 1;
-        $decoded_oid[1] -= 40;
+    elsif($oid[1] < 80) {
+        $oid[0]  = 1;
+        $oid[1] -= 40;
     }
     else {
-        $decoded_oid[0]  = 2;
-        $decoded_oid[1] -= 80;
+        $oid[0]  = 2;
+        $oid[1] -= 80;
     }
 
-    return join ".", @decoded_oid;
+    return join ".", @oid;
 }
 
-sub snmp_object { #===========================================================
+=head2 snmp_object($bytestring)
 
-    my $bin_string     = shift;
-    my @data           = unpack "C*", $bin_string;
-    my $seq_id         = shift @data;
-    my $message_length = shift @data;
-    my $obj_id         = shift @data;
-    my $oid_length     = shift @data;
-    my $oid            = snmp_oid(splice @data, 0, $oid_length);
-    my $value_type     = shift @data;
-    my $value_length   = shift @data;
-    my $type           = snmp_type($value_type);
-    my $bin_value      = substr $bin_string, 6 + $oid_length;
-    my $value          = $type->[1]->($bin_value);
+Returns a hash-ref:
 
-    ### check value
-    return {} unless(defined $value);
+ {
+   oid   => "", # numeric OID
+   type  => "", # what kind of value (corresponding to C<snmp_type>)
+   value => "", # the oid value
+ }
 
-    return {
-        oid   => $oid,
-        type  => $type->[0],
-        value => $value,
-    };
+=cut
+
+sub _chop {
+    my $str  = shift;
+    my $type = shift || 'C1';
+    my $n    = ($type =~ /n/ ? 2 : 1) * ($type =~ /(\d+)/)[0];
+
+    return unpack $type, $1 if($$str =~ s/^(.{$n})//s);
+    return;
 }
 
-sub bigint { #================================================================
+sub snmp_object {
+    my $data = shift;
+    my($byte, $length, $oid, $type, $value);
 
+    # message
+    $byte   = _chop(\$data); # 0x30
+    $byte   = _chop(\$data); # length?
+    $length = $byte == 0x81 ? _chop(\$data)
+            : $byte == 0x82 ? _chop(\$data, "n1")
+            : $byte;
+
+    # oid
+    $byte   = _chop(\$data); # 0x06
+    $length = _chop(\$data);
+    $oid    = snmp_oid( _chop(\$data, "C$length") );
+
+    # value
+    $type   = $SNMP_TYPE{ _chop(\$data) };
+    $length = _chop(\$data);
+    $value  = _chop(\$data, "C$length");
+
+    if(defined $value) {
+        return {
+            oid   => $oid,
+            type  => $type->[0],
+            value => $value,
+        };
+    }
+    else {
+       return {} 
+    }
+}
+
+=head2 bigint($bytestring)
+
+Returns a C<Math::BigInt> object.
+
+=cut
+
+sub bigint {
     my @bytes = unpack 'C*', shift;
     my $value = ($bytes[0] & 0x80) ? -1 : shift @bytes;
     my $int64 = Math::BigInt->new($value);
 
-    ### setup int64
+    # setup int64
     for(@bytes) {
         $_     ^= 0xff if($value < 0);
         $int64  = ($value << 8) | $_;
@@ -113,30 +156,39 @@ sub bigint { #================================================================
     return $int64;
 }
 
-sub uint { #==================================================================
+=head2 uint($bytestring)
 
+Returns an unsigned integer: 0..2**32-1
+
+=cut
+
+sub uint {
     my @bytes  = unpack 'C*', shift;
     my $length = @bytes;
     my $size   = syminfo->byte_size('int');
     my $value  = ($bytes[0] & 0x80) ? -1 : 0;
 
-    ### check
     if($length > $size) {
         $ERROR = "length mismatch: $length > $size";
         return;
     }
 
     $value = ($value << 8) | $_ for(@bytes);
+
     return $value;
 }
 
-sub ushort { #================================================================
+=head2 ushort($bytestring)
 
+Returns an unsigned short integer: 0..2**16-1
+
+=cut
+
+sub ushort {
     my $bin    = shift;
     my $length = length $bin;
     my $size   = syminfo->byte_size('short int');
 
-    ### check
     if($length > $size) {
         $ERROR = "length mismatch: $length > $size";
         return;
@@ -145,20 +197,39 @@ sub ushort { #================================================================
     return unpack('n', $bin);
 }
 
-sub uchar { #=================================================================
+=head2 uchar($bytesstring)
+
+Returns an unsigned character: 0..2**8-1
+
+=cut
+
+sub uchar {
     return join "", unpack('C', shift);
 }
 
-sub vendorspec { #============================================================
+=head2 vendorspec($bytestring)
 
+Returns a list containing ($vendor, \%nested).
+
+Example:
+
+  "0x001337", # vendors ID
+  {
+    type   => "24", # vendor specific type
+    value  => "42", # vendor specific value
+    length => "1",  # the length of the value meassured in bytes
+  },
+
+=cut
+
+sub vendorspec {
     my $bin = shift;
     my($vendor, @ret, $length);
 
     $bin    =~ s/.(.)// or return; # remove the two first bytes
     $length =  unpack "C*", $1;
 
-    ### find vendor
-    if($bin =~ s/(.{$length})//) {
+    if($bin =~ s/(.{$length})//) { # find vendor
         my $f   = "%02x" x $length;
         $vendor = sprintf "0x$f", unpack "C*", $1;
     }
@@ -179,12 +250,16 @@ sub vendorspec { #============================================================
     return $vendor, \@ret;
 }
 
-sub ip { #====================================================================
+=head2 ip($bytestring)
 
+Returns an IPv4-address.
+
+=cut
+
+sub ip {
     my $bin     = shift;
     my $address = inet_ntoa($bin);
 
-    ### check
     unless($address) {
         $ERROR = "Invalid IP address";
         return;
@@ -193,12 +268,16 @@ sub ip { #====================================================================
     return $address;
 }
 
-sub ether { #=================================================================
+=head2 ether($bytestring)
 
+Returns a MAC-address.
+
+=cut
+
+sub ether {
     my $bin    = shift;
     my $length = length $bin;
 
-    ### check
     unless($length == 6 or $length == 12) {
         $ERROR = "Invalid MAC address";
         return;
@@ -207,161 +286,58 @@ sub ether { #=================================================================
     return join ":", unpack("H2" x $length, $bin);
 }
 
-sub string { #================================================================
-
-    my $bin = shift;
-
-    ### hex string
-    if($bin =~ /[\x00-\x1f\x7f-\xff]/) {
-        return hexstr($bin);
-    }
-
-    ### normal string
-    else {
-        return sprintf "%s", $bin;
-    }
-}
-
-sub hexstr { #================================================================
-    return "0x" .join("", unpack "H*", shift);
-}
-
-sub mic { #===================================================================
-    return hexstr(@_);
-}
-
-#=============================================================================
-1983;
-__END__
-
-=head1 NAME
-
-DOCSIS::ConfigFile::Decode - Decode functions for a DOCSIS config-file
-
-=head1 VERSION
-
-See DOCSIS::ConfigFile
-
-=head1 FUNCTIONS
-
-=head2 snmp_type(lc $arg)
-
-Returns an array-ref to an array with two elements:
-
- 1) The string of the SNMP type.
- 2) A reference to the function to decode the value.
-
-=head2 snmp_oid(@bytes)
-
-Returns a numeric OID.
-
-=head2 snmp_object($bytestring)
-
-Returns a hash-ref:
-
- {
-   oid   => "", # numeric OID
-   type  => "", # what kind of value (corresponding to C<snmp_type>)
-   value => "", # the oid value
- }
-
-=head2 bigint($bytestring)
-
-Returns a C<Math::BigInt> object.
-
-=head2 uint($bytestring)
-
-Returns an unsigned integer: 0..2**32-1
-
-=head2 ushort($bytestring)
-
-Returns an unsigned short integer: 0..2**16-1
-
-=head2 uchar($bytesstring)
-
-Returns an unsigned character: 0..2**8-1
-
-=head2 vendorspec($bytestring)
-
-Returns a list containing ($vendor, \%nested).
-
-Example:
-
-  "0x001337", # vendors ID
-  {
-    type   => "24", # vendor specific type
-    value  => "42", # vendor specific value
-    length => "1",  # the length of the value meassured in bytes
-  },
-
-
-=head2 ip($bytestring)
-
-Returns an IPv4-address.
-
-=head2 ether($bytestring)
-
-Returns a MAC-address.
-
 =head2 string($bytestring)
 
 Returns human-readable string if it can, or the string hex-encoded if it
 cannot.
 
+=cut
+
+sub string {
+    my $bin = shift;
+
+    chop $bin if($bin =~ /\x00$/); # ?
+
+    if($bin =~ /[\x00-\x1f\x7f-\xff]/) { # hex string
+        return hexstr($bin);
+    }
+    else { # normal string
+        return sprintf "%s", $bin;
+    }
+}
+
 =head2 hexstr($bytestring)
 
 Returns a value, printed as hex.
+
+=cut
+
+sub hexstr {
+    return "0x" .join("", unpack "H*", shift);
+}
 
 =head2 mic($bytestring)
 
 Returns a value, printed as hex.
 
-=head1 AUTHOR
+=cut
 
-Jan Henning Thorsen, C<< <pm at flodhest.net> >>
+sub mic {
+    return hexstr(@_);
+}
+
+=head1 AUTHOR
 
 =head1 BUGS
 
-Please report any bugs or feature requests to
-C<bug-docsis-perl at rt.cpan.org>, or through the web interface at
-L<http://rt.cpan.org/NoAuth/ReportBug.html?Queue=DOCSIS-ConfigFile>.
-I will be notified, and then you'll automatically be notified of progress on
-your bug as I make changes.
-
 =head1 SUPPORT
-
-You can find documentation for this module with the perldoc command.
-
-    perldoc DOCSIS::ConfigFile
-
-You can also look for information at
-L<http://search.cpan.org/dist/DOCSIS-ConfigFile>
 
 =head1 ACKNOWLEDGEMENTS
 
 =head1 COPYRIGHT & LICENSE
 
-This program is free software; you can redistribute it and/or modify it
-under the same terms as Perl itself.
-
-Copyright (c) 2007 Jan Henning Thorsen
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-
-DOCSIS is a registered trademark of Cablelabs, http://www.cablelabs.com
-
-This module got its inspiration from the program docsis, http://docsis.sf.net.
+See L<DOCSIS::ConfigFile>
 
 =cut
+
+1;
