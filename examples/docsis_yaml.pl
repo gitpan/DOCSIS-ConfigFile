@@ -8,44 +8,51 @@ docsis_yaml.pl
 
 Version 0.01
 
-=head1 USAGE
+=head1 SYNOPSIS
 
- docsis_yaml.pl [options] -i <infile> [-o <outfile>];
+ docsis_yaml.pl [options] --decode <file> [--out <file>];
+ docsis_yaml.pl [options] --encode <file> [--out <file>];
 
  Normal decoding:
- docsis_yaml.pl -i config.bin -o config.yaml
+ docsis_yaml.pl --decode config.bin --out config.yaml
 
  Decoding with extra information
- docsis_yaml.pl -i config.bin -o config.yaml -a
+ docsis_yaml.pl --decode config.bin --out config.yaml --advanced
 
  Encoding with shared secret
- docsis_yaml.pl -i config.yaml -o config.bin -s "mysecret"
+ docsis_yaml.pl --encode <file> --out <file> --secret "mysecret"
 
 =head1 REQUIRED ARGUMENTS
 
 =over
 
-=item -i[n] <str>
+=item --decode <path>
+
+=item --encode <path>
 
 =back
 
-File to read.
+File to encode or decode.
 
 =head1 OPTIONS
 
 =over
 
-=item -o[ut] <str>
+=item --out <str>
 
 File to write. Default is STDOUT.
 
-=item -s[ecret] <str>
+=item --secret <str>
 
 Sets which shared secret to use, when encoding a binary file.
 
-=item -a[dvanced]
+=item --advanced
 
 Turns on advanced output, when decoding a binary file.
+
+=item --trace
+
+Turns on full debugging.
 
 =item --version
 
@@ -66,23 +73,35 @@ Prints this help text.
 use strict;
 use warnings;
 use FindBin;
+use Getopt::Long qw/:config auto_help auto_version/;
+use YAML;
 use lib qq($FindBin::Bin/../lib);
 use DOCSIS::ConfigFile;
-use Getopt::Euclid;
-use YAML;
+
+our $VERSION = $DOCSIS::ConfigFile::VERSION;
+our $ARGS    = {};
+
+GetOptions($ARGS, qw/
+    decode=s encode=s out|o=s advanced|a secret|s=s trace
+/) or Getopt::Long::HelpMessage();
+
+$DOCSIS::ConfigFile::TRACE = $ARGS->{'trace'};
 
 my $docsis = DOCSIS::ConfigFile->new(
-                 advanced_output => ($ARGV{'-advanced'} ? 1 : 0),
-                 shared_secret   => $ARGV{'-secret'},
+                 advanced_output => ($ARGS->{'advanced'} ? 1 : 0),
+                 shared_secret   => $ARGS->{'secret'},
              );
 
-if(-T $ARGV{'-in'}) {
-    my $config = YAML::LoadFile($ARGV{'-in'});
+if($ARGS->{'encode'}) {
+    my $config = YAML::LoadFile($ARGS->{'encode'});
     output($docsis, $docsis->encode($config));
 }
-else {
-    my $config = $docsis->decode($ARGV{'-in'});
+elsif($ARGS->{'decode'}) {
+    my $config = $docsis->decode($ARGS->{'decode'});
     output($docsis, YAML::Dump($config));
+}
+else {
+    Getopt::Long::HelpMessage();
 }
 
 exit 0;
@@ -101,8 +120,8 @@ sub output {
         die join "\n", @errors, q();
     }
 
-    if($ARGV{'-out'}) {
-        open(my $FH, ">", $ARGV{'-out'}) or die $!;
+    if($ARGS->{'out'}) {
+        open(my $FH, ">", $ARGS->{'out'}) or die $!;
         print $FH $data;
         close $FH;
     }
