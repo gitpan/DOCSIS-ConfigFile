@@ -15,6 +15,7 @@ use warnings;
 use bytes;
 use Math::BigInt;
 use Socket;
+use DOCSIS::ConfigFile::Syminfo;
 use constant syminfo => "DOCSIS::ConfigFile::Syminfo";
 
 our $ERROR     = q();
@@ -51,21 +52,17 @@ sub snmp_object {
     my($byte, $length, $oid, $type, $value);
 
     # message
-    _chop(\$data, "C1"); # 0x30
-    $byte   = _chop(\$data, "C1"); # length?
-    $length = $byte == 0x81 ? _chop(\$data, "C1")
-            : $byte == 0x82 ? _chop(\$data, "n1")
-            :                 $byte;
+    $type   = _chop(\$data, "C1"); # 0x30
+    $length = _snmp_length(\$data);
 
     # oid
-    _chop(\$data, "C1"); # 0x06
-    $length = _chop(\$data, "C1");
+    $type   = _chop(\$data, "C1"); # 0x06
+    $length = _snmp_length(\$data);
     $oid    = _snmp_oid( _chop(\$data, "C$length") );
 
     # value
     $type   = $SNMP_TYPE{ _chop(\$data, "C1") };
-    $length = $byte == 0x82 ? _chop(\$data, "S1")
-            :                 _chop(\$data, "C1");
+    $length = _snmp_length(\$data);
     $value  = $type->[1]->($data);
 
     return {
@@ -75,10 +72,31 @@ sub snmp_object {
     };
 }
 
+sub _snmp_length {
+    my $data   = shift;
+    my $length = _chop($data, "C1"); # length?
+
+    if($length <= 0x80) {
+        return $length;
+    }
+    elsif($length == 0x81) {
+        return _chop($data, "C1");
+    }
+    elsif($length == 0x82) {
+        $length = 0;
+        for my $byte (_chop($data, "C2")) {
+            $length = $length << 8 | $byte;
+        }
+        return $length;
+    }
+
+    die "too long snmp length";
+}
+
 sub _snmp_oid {
-    my @bytes  = @_;
-    my @oid    = (0);
-    my $subid  = 0;
+    my @bytes = @_;
+    my @oid   = (0);
+    my $subid = 0;
 
     for my $id (@bytes) {
         if($subid & 0xfe000000) {
@@ -142,9 +160,9 @@ sub bigint {
     my $int64 = Math::BigInt->new($value);
 
     # setup int64
-    for(@bytes) {
-        $_     ^= 0xff if($value < 0);
-        $int64  = ($value << 8) | $_;
+    for my $chunk (@bytes) {
+        $chunk ^= 0xff if($value < 0);
+        $int64  = ($int64 << 8) | $chunk;
     }
 
     return $int64;
@@ -286,7 +304,7 @@ sub ether {
         return;
     }
 
-    return join ":", unpack("H2" x $length, $bin);
+    return join "", unpack("H2" x $length, $bin);
 }
 
 =head2 string($bytestring)
@@ -299,11 +317,10 @@ cannot.
 sub string {
     my $bin = @_ > 1 ? join("", map { chr $_ } @_) : $_[0];
 
-    if($bin =~ /[^\t\n\r\x20-\xef]/) { # hex string
+    if($bin =~ /[^\t\n\r\x20-\xEF]/) {
         return hexstr($bin);
     }
-    else { # normal string
-        $bin =~ s/\x00//g;
+    else {
         $bin =~ s/([^\t\n\x20-\x7e])/{ sprintf "%%%02x", ord $1 }/ge;
         return $bin;
     }

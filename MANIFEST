@@ -1,4 +1,4 @@
-.gitignore
+.swp
 Changes
 examples/docsis_yaml.pl
 inc/Module/AutoInstall.pm
@@ -26,4 +26,5 @@ README
 t/00-load.t
 t/01-pod-coverage.t
 t/01-pod.t
+t/04-encode.t
 t/10-encode_decode.t
