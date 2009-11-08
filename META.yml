@@ -3,9 +3,12 @@ abstract: 'Decodes and encodes DOCSIS config-files'
 author:
   - 'Jan Henning Thorsen, C<< <pm at flodhest.net> >>'
 build_requires:
+  ExtUtils::MakeMaker: 6.42
   Test::More: 0
+configure_requires:
+  ExtUtils::MakeMaker: 6.42
 distribution_type: module
-generated_by: 'Module::Install version 0.79'
+generated_by: 'Module::Install version 0.91'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -27,4 +30,4 @@ requires:
   bytes: 0
 resources:
   license: http://dev.perl.org/licenses/
-version: 0.56
+version: 0.57
