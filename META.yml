@@ -30,4 +30,4 @@ requires:
   bytes: 0
 resources:
   license: http://dev.perl.org/licenses/
-version: 0.58
+version: 0.59

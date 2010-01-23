@@ -1,4 +1,5 @@
 Changes
+DOCSIS-ConfigFile-0.58.tar.gz
 examples/docsis_yaml.pl
 inc/Module/AutoInstall.pm
 inc/Module/Install.pm
