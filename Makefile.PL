@@ -1,17 +1,14 @@
 use inc::Module::Install;
-
-name     q(DOCSIS-ConfigFile);
+name q(DOCSIS-ConfigFile);
 all_from q(lib/DOCSIS/ConfigFile.pm);
-
-requires      q(bytes)            => 0;
-requires      q(Digest::MD5)      => 0;
-requires      q(Digest::HMAC_MD5) => 0;
-requires      q(Getopt::Euclid)   => 0;
-requires      q(Math::BigInt)     => 0;
-requires      q(Socket)           => 0;
-test_requires q(Test::More)       => 0;
-recommends    q(Log::Log4perl)    => 0;
-no_index      q(directory)        => q(examples);
-
-auto_install;
+requires q(Digest::HMAC_MD5) => 1.0;
+requires q(Digest::MD5) => 2.39;
+requires q(FindBin) => 1.50;
+requires q(Getopt::Long) => 2.0;
+requires q(Log::Log4perl) => 1.26;
+requires q(Math::BigInt) => 1.89;
+requires q(Socket) => 1.82;
+requires q(bytes) => 1.0;
+test_requires q(Test::More) => 0.9;
+auto_insall;
 WriteAll;
