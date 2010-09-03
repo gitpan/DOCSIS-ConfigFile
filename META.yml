@@ -3,12 +3,13 @@ abstract: 'Decodes and encodes DOCSIS config-files'
 author:
   - 'Jan Henning Thorsen, C<< <pm at flodhest.net> >>'
 build_requires:
+  Data::Dumper: 2.1
   ExtUtils::MakeMaker: 6.42
   Test::More: 0.9
 configure_requires:
   ExtUtils::MakeMaker: 6.42
 distribution_type: module
-generated_by: 'Module::Install version 0.92'
+generated_by: 'Module::Install version 1.00'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -21,15 +22,14 @@ no_index:
     - t
 requires:
   Digest::HMAC_MD5: 1
-  Digest::MD5: 2.39
-  FindBin: 1.5
-  Getopt::Long: 2
-  Log::Log4perl: 1.26
-  Math::BigInt: 1.89
-  Socket: 1.82
+  Digest::MD5: 2.3
+  Math::BigInt: 1.8
+  Socket: 1.5
+  autodie: 2
   bytes: 1
 resources:
-  bugtracker: http://rt.cpan.org/NoAuth/Bugs.html?Dist=Docsis-ConfigFile
+  bugtracker: http://rt.cpan.org/NoAuth/Bugs.html?Dist=DOCSIS-ConfigFile
+  homepage: http://search.cpan.org/dist/DOCSIS-ConfigFile
   license: http://dev.perl.org/licenses/
-  repository: http://github.com/jhthorsen/docsis-configfile
-version: 0.5901
+  repository: git://github.com//home/repositories/docsis-configfile.git
+version: 0.60
