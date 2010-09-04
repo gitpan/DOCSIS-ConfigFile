@@ -3,7 +3,6 @@ abstract: 'Decodes and encodes DOCSIS config-files'
 author:
   - 'Jan Henning Thorsen, C<< <pm at flodhest.net> >>'
 build_requires:
-  Data::Dumper: 2.1
   ExtUtils::MakeMaker: 6.42
   Test::More: 0.9
 configure_requires:
@@ -32,4 +31,4 @@ resources:
   homepage: http://search.cpan.org/dist/DOCSIS-ConfigFile
   license: http://dev.perl.org/licenses/
   repository: git://github.com//home/repositories/docsis-configfile.git
-version: 0.60
+version: 0.0601
