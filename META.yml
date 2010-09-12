@@ -31,4 +31,4 @@ resources:
   homepage: http://search.cpan.org/dist/DOCSIS-ConfigFile
   license: http://dev.perl.org/licenses/
   repository: git://github.com//home/repositories/docsis-configfile.git
-version: 0.6003
+version: 0.6004
