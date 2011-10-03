@@ -348,6 +348,19 @@ sub string {
     }
 }
 
+=head2 stringz
+
+Same as string above. However this string is zero-terminated in encoded
+form, but this function remove the last "\0" seen in the string.
+
+=cut
+
+sub stringz {
+    my $str = string(@_);
+    $str =~ s/%00$//;
+    return $str;
+}
+
 =head2 hexstr
 
 Will unpack the input string and a string with leading "0x", followed
