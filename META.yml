@@ -23,6 +23,7 @@ no_index:
 requires:
   Digest::HMAC_MD5: 1
   Digest::MD5: 2.3
+  Digest::SHA1: 2.1
   Math::BigInt: 1.8
   Socket: 1.5
   autodie: 2
@@ -32,4 +33,4 @@ resources:
   homepage: http://search.cpan.org/dist/DOCSIS-ConfigFile
   license: http://dev.perl.org/licenses/
   repository: git://github.com//home/repositories/docsis-configfile.git
-version: 0.62
+version: 0.63
