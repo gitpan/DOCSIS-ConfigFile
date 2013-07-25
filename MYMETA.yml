@@ -6,10 +6,9 @@ build_requires:
   ExtUtils::MakeMaker: 6.36
   Test::More: 0.9
 configure_requires:
-  ExtUtils::MakeMaker: 0
-distribution_type: module
+  ExtUtils::MakeMaker: 6.36
 dynamic_config: 0
-generated_by: 'ExtUtils::MakeMaker version 6.57_05'
+generated_by: 'Module::Install version 1.06, CPAN::Meta::Converter version 2.131560'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -17,8 +16,9 @@ meta-spec:
 name: DOCSIS-ConfigFile
 no_index:
   directory:
-    - t
+    - examples
     - inc
+    - t
 requires:
   Digest::HMAC_MD5: 1
   Digest::MD5: 2.3
@@ -27,4 +27,9 @@ requires:
   Socket: 1.5
   autodie: 2
   bytes: 1
+resources:
+  bugtracker: http://rt.cpan.org/NoAuth/Bugs.html?Dist=DOCSIS-ConfigFile
+  homepage: http://search.cpan.org/dist/DOCSIS-ConfigFile
+  license: http://dev.perl.org/licenses/
+  repository: git://github.com//home/repositories/docsis-configfile.git
 version: 0.63
