@@ -20,7 +20,7 @@ no_index:
 requires:
   Digest::HMAC_MD5: '1.00'
   Digest::MD5: '2.30'
-  Digest::SHA1: '2.10'
+  Digest::SHA: '5.00'
   Math::BigInt: '1.80'
   Socket: '1.50'
   bytes: '1.00'
@@ -28,4 +28,4 @@ resources:
   bugtracker: https://github.com/jhthorsen/docsis-configfile/issues
   homepage: https://github.com/jhthorsen/docsis-configfile
   repository: https://github.com/jhthorsen/docsis-configfile.git
-version: '0.65'
+version: '0.66'
