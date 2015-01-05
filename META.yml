@@ -1,36 +1,31 @@
 ---
-abstract: 'Decodes and encodes DOCSIS config-files'
+abstract: 'Decodes and encodes DOCSIS config files'
 author:
-  - 'Jan Henning Thorsen, C<< <pm at flodhest.net> >>'
+  - 'Jan Henning Thorsen <jhthorsen@cpan.org>'
 build_requires:
-  ExtUtils::MakeMaker: 6.36
-  Test::More: 0.9
+  Test::More: '0.8'
 configure_requires:
-  ExtUtils::MakeMaker: 6.36
-distribution_type: module
+  ExtUtils::MakeMaker: '0'
 dynamic_config: 1
-generated_by: 'Module::Install version 1.06'
-license: perl
+generated_by: 'ExtUtils::MakeMaker version 6.98, CPAN::Meta::Converter version 2.143240'
+license: artistic_2
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
-  version: 1.4
+  version: '1.4'
 name: DOCSIS-ConfigFile
 no_index:
   directory:
-    - examples
-    - inc
     - t
+    - inc
 requires:
-  Digest::HMAC_MD5: 1
-  Digest::MD5: 2.3
-  Digest::SHA1: 2.1
-  Math::BigInt: 1.8
-  Socket: 1.5
-  autodie: 2
-  bytes: 1
+  Digest::HMAC_MD5: '1.00'
+  Digest::MD5: '2.30'
+  Digest::SHA1: '2.10'
+  Math::BigInt: '1.80'
+  Socket: '1.50'
+  bytes: '1.00'
 resources:
-  bugtracker: http://rt.cpan.org/NoAuth/Bugs.html?Dist=DOCSIS-ConfigFile
-  homepage: http://search.cpan.org/dist/DOCSIS-ConfigFile
-  license: http://dev.perl.org/licenses/
-  repository: git://github.com//home/repositories/docsis-configfile.git
-version: 0.64
+  bugtracker: https://github.com/jhthorsen/docsis-configfile/issues
+  homepage: https://github.com/jhthorsen/docsis-configfile
+  repository: https://github.com/jhthorsen/docsis-configfile.git
+version: '0.65'
