@@ -24,8 +24,9 @@ requires:
   Math::BigInt: '1.80'
   Socket: '1.50'
   bytes: '1.00'
+  perl: '5.010001'
 resources:
   bugtracker: https://github.com/jhthorsen/docsis-configfile/issues
   homepage: https://github.com/jhthorsen/docsis-configfile
   repository: https://github.com/jhthorsen/docsis-configfile.git
-version: '0.67'
+version: '0.68'

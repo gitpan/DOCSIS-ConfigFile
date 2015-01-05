@@ -24,7 +24,8 @@ WriteMakefile(
   'Digest::SHA' => '5.00',
   'Math::BigInt' => '1.80',
   'Socket' => '1.50',
-  'bytes' => '1.00'
+  'bytes' => '1.00',
+  'perl' => '5.010001'
 }
 ,
   test => { TESTS => 't/*.t' },

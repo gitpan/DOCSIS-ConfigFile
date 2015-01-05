@@ -6,7 +6,7 @@ DOCSIS::ConfigFile - Decodes and encodes DOCSIS config files
 
 =head1 VERSION
 
-0.67
+0.68
 
 =head1 DESCRIPTION
 
@@ -23,6 +23,11 @@ Terminal Adapter) has recevied an IP address from a L<DHCP|Net::ISC::DHCPd>
 server. These files are L<binary encode|DOCSIS::ConfigFile::Encode> using a
 variety of functions, but all the data in the file are constructed by TLVs
 (type-length-value) blocks. These can be nested and concatenated.
+
+See L<DOCSIS::ConfigFile::Syminfo/CONFIGURATION TREE> for full
+set of possible parameters. Create an
+L<issue|https://github.com/jhthorsen/docsis-configfile/issues> if a parameter
+is missing or invalid.
 
 =head1 SYNOPSIS
 
@@ -47,15 +52,17 @@ variety of functions, but all the data in the file are constructed by TLVs
                  SAMapMaxRetries   => 4
                },
                SnmpMibObject => [
-                 {oid => '1.3.6.1.4.1.1.77.1.6.1.1.6.2',    INTEGER => 1},
-                 {oid => '1.3.6.1.4.1.1429.77.1.6.1.1.6.2', STRING  => 'bootfile.bin'}
+                 {oid => "1.3.6.1.4.1.1.77.1.6.1.1.6.2",    INTEGER => 1},
+                 {oid => "1.3.6.1.4.1.1429.77.1.6.1.1.6.2", STRING  => "bootfile.bin"}
                ],
                VendorSpecific => {
-                 id => '0x0011ee',
-                 options => [30 => '0xff', 31 => '0x00', 32 => '0x28']
+                 id => "0x0011ee",
+                 options => [30 => "0xff", 31 => "0x00", 32 => "0x28"]
                }
              }
            );
+
+See also L<DOCSIS::ConfigFile::Syminfo/CONFIGURATION TREE>.
 
 =head1 OPTIONAL MODULE
 
@@ -66,8 +73,8 @@ like the example below, instead of using numeric OIDs:
   encode_docsis(
     {
       SnmpMibObject => [
-        {oid => 'docsDevNmAccessIp.1',             IPADDRESS => '10.0.0.1'},
-        {oid => 'docsDevNmAccessIpMask.1',         IPADDRESS => '255.255.255.255'},
+        {oid => "docsDevNmAccessIp.1",             IPADDRESS => "10.0.0.1"},
+        {oid => "docsDevNmAccessIpMask.1",         IPADDRESS => "255.255.255.255"},
       ]
     },
   );
@@ -86,7 +93,7 @@ use constant DEBUG => $ENV{DOCSIS_CONFIGFILE_DEBUG} || 0;
 
 use base 'Exporter';
 
-our $VERSION = '0.67';
+our $VERSION = '0.68';
 our @EXPORT_OK = qw( decode_docsis encode_docsis );
 our $DEPTH     = 0;
 
@@ -176,14 +183,14 @@ in the same C<$byte_string>:
   # Only one SnmpMibObject
   encode_docsis({
     SnmpMibObject => { # hash-ref
-      oid => '1.3.6.1.4.1.1429.77.1.6.1.1.6.2', STRING => 'bootfile.bin'
+      oid => "1.3.6.1.4.1.1429.77.1.6.1.1.6.2", STRING => "bootfile.bin"
     }
   })
 
   # Allow one or more SnmpMibObjects
   encode_docsis({
     SnmpMibObject => [ # array-ref of hashes
-      { oid => '1.3.6.1.4.1.1429.77.1.6.1.1.6.2', STRING => 'bootfile.bin' }
+      { oid => "1.3.6.1.4.1.1429.77.1.6.1.1.6.2", STRING => "bootfile.bin" }
     ]
   })
 

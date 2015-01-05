@@ -37,7 +37,8 @@
             "Digest::SHA" : "5.00",
             "Math::BigInt" : "1.80",
             "Socket" : "1.50",
-            "bytes" : "1.00"
+            "bytes" : "1.00",
+            "perl" : "5.010001"
          }
       }
    },
@@ -51,5 +52,5 @@
          "url" : "https://github.com/jhthorsen/docsis-configfile.git"
       }
    },
-   "version" : "0.67"
+   "version" : "0.68"
 }

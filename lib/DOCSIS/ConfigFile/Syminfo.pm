@@ -13,9 +13,190 @@ is human readable.
 NOTE: DOCSIS 3.0 is also supported, since the main differences is in
 the physical layer and not the config file.
 
-=head1 SYNOPSIS
+=head1 CONFIGURATION TREE
 
-  use DOCSIS::ConfigFile::Syminfo;
+Here is the complete structure of possible config parameters:
+
+  BaselinePrivacy => {
+    AuthGraceTime     => uint, # 1..6047999
+    AuthRejectTimeout => uint, # 1..600
+    AuthTimeout       => uint, # 1..30
+    OperTimeout       => uint, # 1..10
+    ReAuthTimeout     => uint, # 1..30
+    ReKeyTimeout      => uint, # 1..10
+    SAMapMaxRetries   => uint, # 0..10
+    SAMapWaitTimeout  => uint, # 1..10
+    TEKGraceTime      => uint, # 1..302399
+  },
+  ClassOfService => {
+    ClassID       => str,    # 1..16
+    GuaranteedUp  => uint,   # 0..10000000
+    MaxBurstUp    => ushort, # 0..65535
+    MaxRateDown   => uint,   # 0..52000000
+    MaxRateUp     => uint,   # 0..10000000
+    PriorityUp    => uchar,  # 0..7
+    PrivacyEnable => uchar,  # 0..1
+  },
+  CpeMacAddress       => ether, # "aabbccdddeeff"
+  DocsisTwoEnable     => uchar, # 0..1
+  DownstreamFrequency => uint,  # 88000000..860000000
+  DsChannelList       => {
+    DefaultScanTimeout => ushort # 0..65535
+    DsFreqRange        => {
+      DsFreqRangeEnd      => uint,   # 0..4294967295
+      DsFreqRangeStart    => uint,   # 0..4294967295
+      DsFreqRangeStepSize => uint,   # 0..4294967295
+      DsFreqRangeTimeout  => ushort, # 0..65535
+    },
+    SingleDsChannel => {
+      SingleDsFrequency => uint,   # 0..4294967295
+      SingleDsTimeout   => ushort, # 0..65535
+    },
+  },
+  DsPacketClass => {
+    ActivationState   => uchar,  # 0..1
+    ClassifierId      => ushort, # 1..65535
+    ClassifierRef     => uchar,  # 1..255
+    DscAction         => uchar,  # 0..2
+    IEEE802Classifier => {
+      UserPriority => ushort,
+      VlanID       => ushort,
+    },
+    IpPacketClassifier => {
+      DstPortEnd   => ushort, # 0..65535
+      DstPortStart => ushort, # 0..65535
+      IpDstAddr    => ip, # 1.2.3.4
+      IpDstMask    => ip, # 1.2.3.4
+      IpProto      => ushort, # 0..257
+      IpSrcAddr    => ip, # 1.2.3.4
+      IpSrcMask    => ip, # 1.2.3.4
+      IpTos        => hexstr, # 3..3
+      SrcPortEnd   => ushort, # 0..65535
+      SrcPortStart => ushort, # 0..65535
+    },
+  },
+  DsServiceFlow => {
+    ActQosParamsTimeout => ushort,  # 0..65535
+    AdmQosParamsTimeout => ushort,  # 0..65535
+    DsServiceFlowId     => uint,    # 1..4294967295
+    DsServiceFlowRef    => ushort,  # 1..65535
+    DsVendorSpecific    => {
+      id      => "0x0011ee",
+      options => [30 => "0xff", 31 => "0x00", 32 => "0x28"]
+    },
+    MaxDsLatency        => uint,
+    MaxRateSustained    => uint,    # 0..4294967295
+    MaxTrafficBurst     => uint,    # 0..4294967295
+    MinReservedRate     => uint,    # 0..4294967295
+    MinResPacketSize    => ushort,  # 0..65535
+    QosParamSetType     => uchar,   # 0..255
+    ServiceClassName    => stringz, # 2..16
+    TrafficPriority     => uchar,   # 0..7
+  },
+  GlobalPrivacyEnable => uchar,    # 0..1
+  MaxClassifiers      => ushort,
+  MaxCPE              => uchar,    # 1..254
+  MfgCVCData          => hexstr,   # 0x308203813082
+  ModemCapabilities   => {
+    BaselinePrivacySupport => uchar, # 0..1
+    ConcatenationSupport   => uchar, # 0..1
+    DCCSupport             => uchar, # 0..1
+    DownstreamSAIDSupport  => uchar, # 0..255
+    FragmentationSupport   => uchar, # 0..1
+    IGMPSupport            => uchar, # 0..1
+    ModemDocsisVersion     => uchar, # 0..2
+    PHSSupport             => uchar, # 0..1
+    UpstreamSIDSupport     => uchar, # 0..255
+  },
+  NetworkAccess      => uchar, # 0..1
+  PHS                => {
+    PHSClassifierId   => ushort, # 1..65535
+    PHSClassifierRef  => uchar,  # 1..255
+    PHSField          => hexstr, # 1..255
+    PHSIndex          => uchar,  # 1..255
+    PHSMask           => hexstr, # 1..255
+    PHSServiceFlowId  => uint,   # 1..4294967295
+    PHSServiceFlowRef => ushort, # 1..65535
+    PHSSize           => uchar,  # 1..255
+    PHSVerify         => uchar,  # 0..1
+  },
+  SnmpCpeAccessControl => uchar,       # 0..1
+  SnmpMibObject        => snmp_object, # 1..255
+  SnmpV3Kickstart      => {
+    SnmpV3MgrPublicNumber => hexstr, # 1..514
+    SnmpV3SecurityName    => string, # 1..16
+  },
+  SnmpV3TrapReceiver => {
+    SnmpV3TrapRxFilterOID    => ushort, # 1..5
+    SnmpV3TrapRxIP           => ip, # 1.2.3.4
+    SnmpV3TrapRxPort         => ushort,
+    SnmpV3TrapRxRetries      => ushort, # 0..65535
+    SnmpV3TrapRxSecurityName => string, # 1..16
+    SnmpV3TrapRxTimeout      => ushort, # 0..65535
+    SnmpV3TrapRxType         => ushort, # 1..5
+  },
+  SubMgmtControl    => hexstr,      # 3..3
+  SubMgmtCpeTable   => hexstr,
+  SubMgmtFilters    => ushort_list, # 4..4
+  SwUpgradeFilename => string,      # "bootfile.bin"
+  SwUpgradeServer   => ip, # 1.2.3.4
+  TestMode          => hexstr,      # 0..1
+  TftpModemAddress  => ip, # 1.2.3.4
+  TftpTimestamp     => uint,        # 0..4294967295
+  UpstreamChannelId => uchar,       # 0..255
+  UsPacketClass     => {
+    ActivationState   => uchar,  # 0..1
+    ClassifierId      => ushort, # 1..65535
+    ClassifierRef     => uchar,  # 1..255
+    DscAction         => uchar,  # 0..2
+    IEEE802Classifier => {
+      UserPriority => ushort,
+      VlanID       => ushort,
+    },
+    IpPacketClassifier => {
+      DstPortEnd   => ushort, # 0..65535
+      DstPortStart => ushort, # 0..65535
+      IpDstAddr    => ip, # 1.2.3.4
+      IpDstMask    => ip, # 1.2.3.4
+      IpProto      => ushort, # 0..257
+      IpSrcAddr    => ip, # 1.2.3.4
+      IpSrcMask    => ip, # 1.2.3.4
+      IpTos        => hexstr, # 3..3
+      SrcPortEnd   => ushort, # 0..65535
+      SrcPortStart => ushort, # 0..65535
+    },
+  },
+  UsServiceFlow => {
+    ActQosParamsTimeout  => ushort,  # 0..65535
+    AdmQosParamsTimeout  => ushort,  # 0..65535
+    GrantsPerInterval    => uchar,   # 0..127
+    IpTosOverwrite       => hexstr,  # 0..255
+    MaxConcatenatedBurst => ushort,  # 0..65535
+    MaxRateSustained     => uint,
+    MaxTrafficBurst      => uint,
+    MinReservedRate      => uint,
+    MinResPacketSize     => ushort,  # 0..65535
+    NominalGrantInterval => uint,
+    NominalPollInterval  => uint,
+    QosParamSetType      => uchar,   # 0..255
+    RequestOrTxPolicy    => hexstr,  # 0..255
+    SchedulingType       => uchar,   # 0..6
+    ServiceClassName     => stringz, # 2..16
+    ToleratedGrantJitter => uint,
+    ToleratedPollJitter  => uint,
+    TrafficPriority      => uchar,   # 0..7
+    UnsolicitedGrantSize => ushort,  # 0..65535
+    UsServiceFlowId      => uint,    # 1..4294967295
+    UsServiceFlowRef     => ushort,  # 1..65535
+    UsVendorSpecific     => {
+      id      => "0x0011ee",
+      options => [30 => "0xff", 31 => "0x00", 32 => "0x28"]
+    },
+  },
+  VendorSpecific => {
+    id      => "0x0011ee",
+    options => [30 => "0xff", 31 => "0x00", 32 => "0x28"]
+  },
 
 =cut
 
@@ -182,7 +363,7 @@ our $TREE = {
       AdmQosParamsTimeout => {code => 13, func => "ushort",  lsize => 1, limit => [0, 65535]},
       DsServiceFlowId     => {code => 2,  func => "uint",    lsize => 1, limit => [1, 4294967295]},
       DsServiceFlowRef    => {code => 1,  func => "ushort",  lsize => 1, limit => [1, 65535]},
-      DsVendorSpecific    => {code => 43, func => "vendor",  lsize => 1, limit => [0, 0],},
+      DsVendorSpecific    => {code => 43, func => "vendor",  lsize => 1, limit => [0, 0]},
       MaxDsLatency        => {code => 14, func => "uint",    lsize => 1, limit => [0, 0]},
       MaxRateSustained    => {code => 8,  func => "uint",    lsize => 1, limit => [0, 4294967295]},
       MaxTrafficBurst     => {code => 9,  func => "uint",    lsize => 1, limit => [0, 4294967295]},
@@ -261,7 +442,6 @@ our $TREE = {
       SnmpV3TrapRxType         => {code => 3, func => "ushort", lsize => 1, limit => [1, 5]},
     },
   },
-  SnmpWriteControl  => {code => 10, func => "nested",      lsize => 1, limit => [0, 0], nested => {}},
   SubMgmtControl    => {code => 35, func => "hexstr",      lsize => 1, limit => [3, 3]},
   SubMgmtCpeTable   => {code => 36, func => "hexstr",      lsize => 1, limit => [0, 0]},
   SubMgmtFilters    => {code => 37, func => "ushort_list", lsize => 1, limit => [4, 4]},
@@ -352,7 +532,7 @@ our $TREE = {
       UnsolicitedGrantSize => {code => 19, func => "ushort",  lsize => 1, limit => [0, 65535]},
       UsServiceFlowId      => {code => 2,  func => "uint",    lsize => 1, limit => [1, 4294967295]},
       UsServiceFlowRef     => {code => 1,  func => "ushort",  lsize => 1, limit => [1, 65535]},
-      UsVendorSpecific     => {code => 43, func => "vendor",  lsize => 1, limit => [0, 0],},
+      UsVendorSpecific     => {code => 43, func => "vendor",  lsize => 1, limit => [0, 0]},
     },
   },
   VendorSpecific => {code => 43, func => "vendor", lsize => 1, limit => [0, 0],},

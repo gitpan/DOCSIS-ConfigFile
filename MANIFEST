@@ -49,5 +49,6 @@ t/real.t
 t/rt70882.t
 t/rt83013.t
 t/rt87812.t
+t/symtree.t
 META.yml                                 Module YAML meta-data (added by MakeMaker)
 META.json                                Module JSON meta-data (added by MakeMaker)
